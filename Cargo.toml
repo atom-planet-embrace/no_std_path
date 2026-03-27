@@ -10,6 +10,7 @@ keywords = ["path", "no-std", "no_std"]
 categories = ["no-std", "filesystem"]
 documentation = "https://docs.rs/no_std_path"
 authors = ["Michael Spiegel <michael.m.spiegel@gmail.com>"]
+publish = false
 
 [features]
 default = ["std"]
