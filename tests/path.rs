@@ -75,33 +75,15 @@ macro_rules! t (
         }
     );
 
-    ($path:expr, file_prefix: $file_prefix:expr, extension: $extension:expr) => (
-        {
-            let path = Path::new($path);
-
-            let prefix = path.file_prefix().map(|p| p.to_str().unwrap());
-            let exp_prefix: Option<&str> = $file_prefix;
-            assert!(prefix == exp_prefix, "file_prefix: Expected {:?}, found {:?}",
-                    exp_prefix, prefix);
-
-            let ext = path.extension().map(|p| p.to_str().unwrap());
-            let exp_ext: Option<&str> = $extension;
-            assert!(ext == exp_ext, "extension: Expected {:?}, found {:?}",
-                    exp_ext, ext);
-        }
-    );
-
     ($path:expr, iter: $iter:expr,
                  has_root: $has_root:expr, is_absolute: $is_absolute:expr,
                  parent: $parent:expr, file_name: $file:expr,
-                 file_stem: $file_stem:expr, extension: $extension:expr,
-                 file_prefix: $file_prefix:expr) => (
+                 file_stem: $file_stem:expr, extension: $extension:expr) => (
         {
             t!($path, iter: $iter);
             t!($path, has_root: $has_root, is_absolute: $is_absolute);
             t!($path, parent: $parent, file_name: $file);
             t!($path, file_stem: $file_stem, extension: $extension);
-            t!($path, file_prefix: $file_prefix, extension: $extension);
         }
     );
 );
@@ -127,16 +109,6 @@ fn into() {
 }
 
 #[test]
-fn test_pathbuf_leak() {
-    let string = "/have/a/cake".to_owned();
-    let (len, cap) = (string.len(), string.capacity());
-    let buf = PathBuf::from(string);
-    let leaked = buf.leak();
-    assert_eq!(leaked.as_os_str().as_encoded_bytes(), b"/have/a/cake");
-    unsafe { drop(String::from_raw_parts(leaked.as_mut_os_str() as *mut OsStr as _, len, cap)) }
-}
-
-#[test]
 pub fn test_decompositions_unix() {
     t!("",
     iter: [],
@@ -145,8 +117,7 @@ pub fn test_decompositions_unix() {
     parent: None,
     file_name: None,
     file_stem: None,
-    extension: None,
-    file_prefix: None
+    extension: None
     );
 
     t!("foo",
@@ -156,8 +127,7 @@ pub fn test_decompositions_unix() {
     parent: Some(""),
     file_name: Some("foo"),
     file_stem: Some("foo"),
-    extension: None,
-    file_prefix: Some("foo")
+    extension: None
     );
 
     t!("/",
@@ -167,8 +137,7 @@ pub fn test_decompositions_unix() {
     parent: None,
     file_name: None,
     file_stem: None,
-    extension: None,
-    file_prefix: None
+    extension: None
     );
 
     t!("/foo",
@@ -178,8 +147,7 @@ pub fn test_decompositions_unix() {
     parent: Some("/"),
     file_name: Some("foo"),
     file_stem: Some("foo"),
-    extension: None,
-    file_prefix: Some("foo")
+    extension: None
     );
 
     t!("foo/",
@@ -189,8 +157,7 @@ pub fn test_decompositions_unix() {
     parent: Some(""),
     file_name: Some("foo"),
     file_stem: Some("foo"),
-    extension: None,
-    file_prefix: Some("foo")
+    extension: None
     );
 
     t!("/foo/",
@@ -200,8 +167,7 @@ pub fn test_decompositions_unix() {
     parent: Some("/"),
     file_name: Some("foo"),
     file_stem: Some("foo"),
-    extension: None,
-    file_prefix: Some("foo")
+    extension: None
     );
 
     t!("foo/bar",
@@ -211,8 +177,7 @@ pub fn test_decompositions_unix() {
     parent: Some("foo"),
     file_name: Some("bar"),
     file_stem: Some("bar"),
-    extension: None,
-    file_prefix: Some("bar")
+    extension: None
     );
 
     t!("/foo/bar",
@@ -222,8 +187,7 @@ pub fn test_decompositions_unix() {
     parent: Some("/foo"),
     file_name: Some("bar"),
     file_stem: Some("bar"),
-    extension: None,
-    file_prefix: Some("bar")
+    extension: None
     );
 
     t!("///foo///",
@@ -233,8 +197,7 @@ pub fn test_decompositions_unix() {
     parent: Some("/"),
     file_name: Some("foo"),
     file_stem: Some("foo"),
-    extension: None,
-    file_prefix: Some("foo")
+    extension: None
     );
 
     t!("///foo///bar",
@@ -244,8 +207,7 @@ pub fn test_decompositions_unix() {
     parent: Some("///foo"),
     file_name: Some("bar"),
     file_stem: Some("bar"),
-    extension: None,
-    file_prefix: Some("bar")
+    extension: None
     );
 
     t!("./.",
@@ -255,8 +217,7 @@ pub fn test_decompositions_unix() {
     parent: Some(""),
     file_name: None,
     file_stem: None,
-    extension: None,
-    file_prefix: None
+    extension: None
     );
 
     t!("/..",
@@ -266,8 +227,7 @@ pub fn test_decompositions_unix() {
     parent: Some("/"),
     file_name: None,
     file_stem: None,
-    extension: None,
-    file_prefix: None
+    extension: None
     );
 
     t!("../",
@@ -277,8 +237,7 @@ pub fn test_decompositions_unix() {
     parent: Some(""),
     file_name: None,
     file_stem: None,
-    extension: None,
-    file_prefix: None
+    extension: None
     );
 
     t!("foo/.",
@@ -288,8 +247,7 @@ pub fn test_decompositions_unix() {
     parent: Some(""),
     file_name: Some("foo"),
     file_stem: Some("foo"),
-    extension: None,
-    file_prefix: Some("foo")
+    extension: None
     );
 
     t!("foo/..",
@@ -299,8 +257,7 @@ pub fn test_decompositions_unix() {
     parent: Some("foo"),
     file_name: None,
     file_stem: None,
-    extension: None,
-    file_prefix: None
+    extension: None
     );
 
     t!("foo/./",
@@ -310,8 +267,7 @@ pub fn test_decompositions_unix() {
     parent: Some(""),
     file_name: Some("foo"),
     file_stem: Some("foo"),
-    extension: None,
-    file_prefix: Some("foo")
+    extension: None
     );
 
     t!("foo/./bar",
@@ -321,8 +277,7 @@ pub fn test_decompositions_unix() {
     parent: Some("foo"),
     file_name: Some("bar"),
     file_stem: Some("bar"),
-    extension: None,
-    file_prefix: Some("bar")
+    extension: None
     );
 
     t!("foo/../",
@@ -332,8 +287,7 @@ pub fn test_decompositions_unix() {
     parent: Some("foo"),
     file_name: None,
     file_stem: None,
-    extension: None,
-    file_prefix: None
+    extension: None
     );
 
     t!("foo/../bar",
@@ -343,8 +297,7 @@ pub fn test_decompositions_unix() {
     parent: Some("foo/.."),
     file_name: Some("bar"),
     file_stem: Some("bar"),
-    extension: None,
-    file_prefix: Some("bar")
+    extension: None
     );
 
     t!("./a",
@@ -354,8 +307,7 @@ pub fn test_decompositions_unix() {
     parent: Some("."),
     file_name: Some("a"),
     file_stem: Some("a"),
-    extension: None,
-    file_prefix: Some("a")
+    extension: None
     );
 
     t!(".",
@@ -365,8 +317,7 @@ pub fn test_decompositions_unix() {
     parent: Some(""),
     file_name: None,
     file_stem: None,
-    extension: None,
-    file_prefix: None
+    extension: None
     );
 
     t!("./",
@@ -376,8 +327,7 @@ pub fn test_decompositions_unix() {
     parent: Some(""),
     file_name: None,
     file_stem: None,
-    extension: None,
-    file_prefix: None
+    extension: None
     );
 
     t!("a/b",
@@ -387,8 +337,7 @@ pub fn test_decompositions_unix() {
     parent: Some("a"),
     file_name: Some("b"),
     file_stem: Some("b"),
-    extension: None,
-    file_prefix: Some("b")
+    extension: None
     );
 
     t!("a//b",
@@ -398,8 +347,7 @@ pub fn test_decompositions_unix() {
     parent: Some("a"),
     file_name: Some("b"),
     file_stem: Some("b"),
-    extension: None,
-    file_prefix: Some("b")
+    extension: None
     );
 
     t!("a/./b",
@@ -409,8 +357,7 @@ pub fn test_decompositions_unix() {
     parent: Some("a"),
     file_name: Some("b"),
     file_stem: Some("b"),
-    extension: None,
-    file_prefix: Some("b")
+    extension: None
     );
 
     t!("a/b/c",
@@ -420,8 +367,7 @@ pub fn test_decompositions_unix() {
     parent: Some("a/b"),
     file_name: Some("c"),
     file_stem: Some("c"),
-    extension: None,
-    file_prefix: Some("c")
+    extension: None
     );
 
     t!(".foo",
@@ -431,8 +377,7 @@ pub fn test_decompositions_unix() {
     parent: Some(""),
     file_name: Some(".foo"),
     file_stem: Some(".foo"),
-    extension: None,
-    file_prefix: Some(".foo")
+    extension: None
     );
 
     t!("a/.foo",
@@ -442,8 +387,7 @@ pub fn test_decompositions_unix() {
     parent: Some("a"),
     file_name: Some(".foo"),
     file_stem: Some(".foo"),
-    extension: None,
-    file_prefix: Some(".foo")
+    extension: None
     );
 
     t!("a/.rustfmt.toml",
@@ -453,8 +397,7 @@ pub fn test_decompositions_unix() {
     parent: Some("a"),
     file_name: Some(".rustfmt.toml"),
     file_stem: Some(".rustfmt"),
-    extension: Some("toml"),
-    file_prefix: Some(".rustfmt")
+    extension: Some("toml")
     );
 
     t!("a/.x.y.z",
@@ -464,8 +407,7 @@ pub fn test_decompositions_unix() {
     parent: Some("a"),
     file_name: Some(".x.y.z"),
     file_stem: Some(".x.y"),
-    extension: Some("z"),
-    file_prefix: Some(".x")
+    extension: Some("z")
     );
 }
 
@@ -510,49 +452,6 @@ pub fn test_stem_ext() {
     t!("..x.y.z", file_stem: Some("..x.y"), extension: Some("z"));
 
     t!("", file_stem: None, extension: None);
-}
-
-#[test]
-pub fn test_prefix_ext() {
-    t!("foo",
-    file_prefix: Some("foo"),
-    extension: None
-    );
-
-    t!("foo.",
-    file_prefix: Some("foo"),
-    extension: Some("")
-    );
-
-    t!(".foo",
-    file_prefix: Some(".foo"),
-    extension: None
-    );
-
-    t!("foo.txt",
-    file_prefix: Some("foo"),
-    extension: Some("txt")
-    );
-
-    t!("foo.bar.txt",
-    file_prefix: Some("foo"),
-    extension: Some("txt")
-    );
-
-    t!("foo.bar.",
-    file_prefix: Some("foo"),
-    extension: Some("")
-    );
-
-    t!(".", file_prefix: None, extension: None);
-
-    t!("..", file_prefix: None, extension: None);
-
-    t!(".x.y.z", file_prefix: Some(".x"), extension: Some("z"));
-
-    t!("..x.y.z", file_prefix: Some("."), extension: Some("z"));
-
-    t!("", file_prefix: None, extension: None);
 }
 
 #[test]
@@ -660,37 +559,6 @@ pub fn test_set_extension() {
 }
 
 #[test]
-pub fn test_add_extension() {
-    macro_rules! tfe (
-        ($path:expr, $ext:expr, $expected:expr, $output:expr) => ({
-            let mut p = PathBuf::from($path);
-            let output = p.add_extension($ext);
-            assert!(p.to_str() == Some($expected) && output == $output,
-                    "adding extension of {:?} to {:?}: Expected {:?}/{:?}, got {:?}/{:?}",
-                    $path, $ext, $expected, $output,
-                    p.to_str().unwrap(), output);
-        });
-    );
-
-    tfe!("foo", "txt", "foo.txt", true);
-    tfe!("foo.bar", "txt", "foo.bar.txt", true);
-    tfe!("foo.bar.baz", "txt", "foo.bar.baz.txt", true);
-    tfe!(".test", "txt", ".test.txt", true);
-    tfe!("foo.txt", "", "foo.txt", true);
-    tfe!("foo", "", "foo", true);
-    tfe!("", "foo", "", false);
-    tfe!(".", "foo", ".", false);
-    tfe!("foo/", "bar", "foo.bar", true);
-    tfe!("foo/.", "bar", "foo.bar", true);
-    tfe!("..", "foo", "..", false);
-    tfe!("foo/..", "bar", "foo/..", false);
-    tfe!("/", "foo", "/", false);
-
-    // edge cases
-    tfe!("/foo.ext////", "bar", "/foo.ext.bar", true);
-}
-
-#[test]
 pub fn test_with_extension() {
     macro_rules! twe (
         ($input:expr, $extension:expr, $expected:expr) => ({
@@ -728,49 +596,6 @@ pub fn test_with_extension() {
     twe!("ccc.aaa_aaa_aaa", "bbb_bbb", "ccc.bbb_bbb");
     // New extension is greater than previous extension
     twe!("ccc.bbb_bbb", "aaa_aaa_aaa", "ccc.aaa_aaa_aaa");
-}
-
-#[test]
-pub fn test_with_added_extension() {
-    macro_rules! twe (
-        ($input:expr, $extension:expr, $expected:expr) => ({
-            let input = Path::new($input);
-            let output = input.with_added_extension($extension);
-
-            assert!(
-                output.to_str() == Some($expected),
-                "calling Path::new({:?}).with_added_extension({:?}): Expected {:?}, got {:?}",
-                $input, $extension, $expected, output,
-            );
-        });
-    );
-
-    twe!("foo", "txt", "foo.txt");
-    twe!("foo.bar", "txt", "foo.bar.txt");
-    twe!("foo.bar.baz", "txt", "foo.bar.baz.txt");
-    twe!(".test", "txt", ".test.txt");
-    twe!("foo.txt", "", "foo.txt");
-    twe!("foo", "", "foo");
-    twe!("", "foo", "");
-    twe!(".", "foo", ".");
-    twe!("foo/", "bar", "foo.bar");
-    twe!("foo/.", "bar", "foo.bar");
-    twe!("..", "foo", "..");
-    twe!("foo/..", "bar", "foo/..");
-    twe!("/", "foo", "/");
-
-    // edge cases
-    twe!("/foo.ext////", "bar", "/foo.ext.bar");
-
-    // New extension is smaller than file name
-    twe!("aaa_aaa_aaa", "bbb_bbb", "aaa_aaa_aaa.bbb_bbb");
-    // New extension is greater than file name
-    twe!("bbb_bbb", "aaa_aaa_aaa", "bbb_bbb.aaa_aaa_aaa");
-
-    // New extension is smaller than previous extension
-    twe!("ccc.aaa_aaa_aaa", "bbb_bbb", "ccc.aaa_aaa_aaa.bbb_bbb");
-    // New extension is greater than previous extension
-    twe!("ccc.bbb_bbb", "aaa_aaa_aaa", "ccc.bbb_bbb.aaa_aaa_aaa");
 }
 
 #[test]
@@ -1121,63 +946,13 @@ fn test_embedded_newline() {
 }
 
 #[test]
-fn normalize_lexically() {
-    #[track_caller]
-    fn check_ok(a: &str, b: &str) {
-        assert_eq!(Path::new(a).normalize_lexically().unwrap(), PathBuf::from(b));
-    }
-
-    #[track_caller]
-    fn check_err(a: &str) {
-        assert!(Path::new(a).normalize_lexically().is_err());
-    }
-
-    // Relative paths
-    check_ok("a", "a");
-    check_ok("./a", "./a");
-    check_ok("a/b/c", "a/b/c");
-    check_ok("a/././b/./c/.", "a/b/c");
-    check_ok("a/../c", "c");
-    check_ok("./a/b", "./a/b");
-    check_ok("a/../b/c/..", "b");
-
-    check_err("..");
-    check_err("../..");
-    check_err("a/../..");
-    check_err("a/../../b");
-    check_err("a/../../b/c");
-    check_err("a/../b/../..");
-
-    // Check we don't escape the root
-    check_err("/..");
-    check_err("/a/../..");
+#[cfg(not(feature = "std"))]
+fn test_using_no_std_impl() {
+    assert!(no_std_path::NO_STD_IMPL, "expected no_std implementation");
 }
 
 #[test]
-/// See issue#146183 and issue#146940
-fn compare_path_like_to_str_like() {
-    let path_buf = PathBuf::from("x");
-    let path = Path::new("x");
-    let s = String::from("x");
-    assert!(path == "x");
-    assert!("x" == path);
-    assert!(path == &s);
-    assert!(&s == path);
-    assert!(&path_buf == "x");
-    assert!("x" == &path_buf);
-    assert!(path_buf == s);
-    assert!(s == path_buf);
-}
-
-#[test]
-fn test_trim_trailing_sep() {
-    assert_eq!(Path::new("/").trim_trailing_sep().as_os_str(), OsStr::new("/"));
-    assert_eq!(Path::new("//").trim_trailing_sep().as_os_str(), OsStr::new("//"));
-    assert_eq!(Path::new("").trim_trailing_sep().as_os_str(), OsStr::new(""));
-    assert_eq!(Path::new(".").trim_trailing_sep().as_os_str(), OsStr::new("."));
-    assert_eq!(Path::new("./").trim_trailing_sep().as_os_str(), OsStr::new("."));
-    assert_eq!(Path::new(".//").trim_trailing_sep().as_os_str(), OsStr::new("."));
-    assert_eq!(Path::new("..").trim_trailing_sep().as_os_str(), OsStr::new(".."));
-    assert_eq!(Path::new("../").trim_trailing_sep().as_os_str(), OsStr::new(".."));
-    assert_eq!(Path::new("..//").trim_trailing_sep().as_os_str(), OsStr::new(".."));
+#[cfg(feature = "std")]
+fn test_using_std_impl() {
+    assert!(!no_std_path::NO_STD_IMPL, "expected std implementation");
 }

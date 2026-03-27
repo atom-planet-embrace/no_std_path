@@ -427,7 +427,7 @@ impl Eq for OsString {}
 impl PartialOrd for OsString {
     #[inline]
     fn partial_cmp(&self, other: &OsString) -> Option<core::cmp::Ordering> {
-        self.as_os_str().partial_cmp(other.as_os_str())
+        Some(self.cmp(other))
     }
 }
 
