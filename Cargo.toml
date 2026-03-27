@@ -2,5 +2,7 @@
 name = "no_std_path"
 version = "0.1.0"
 edition = "2024"
+description = "A no_std fork of the path module from https://github.com/rust-lang/rust"
 
-[dependencies]
+[features]
+std = []
