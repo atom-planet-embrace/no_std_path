@@ -554,7 +554,7 @@ impl<'a> core::fmt::Debug for Display<'a> {
 impl<'a> core::fmt::Display for Display<'a> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let lossy = self.inner.to_string_lossy();
-        f.write_str(&lossy)
+        f.pad(&lossy)
     }
 }
 
