@@ -7,21 +7,21 @@ on:
     branches: [main]
 
 jobs:
-  test-no-std-impl:
-    name: Test (no_std implementation)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - run: cargo test
-
   test-std-impl:
     name: Test (std re-exports)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo test --features std
+      - run: cargo test
+
+  test-no-std-impl:
+    name: Test (no_std implementation)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --no-default-features
 
   no-std-build:
     name: Build (thumbv7m-none-eabi)
@@ -31,7 +31,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: thumbv7m-none-eabi
-      - run: cargo build --target thumbv7m-none-eabi
+      - run: cargo build --target thumbv7m-none-eabi --no-default-features
 
   clippy:
     name: Clippy
@@ -42,3 +42,4 @@ jobs:
         with:
           components: clippy
       - run: cargo clippy -- -D warnings
+      - run: cargo clippy --no-default-features -- -D warnings
