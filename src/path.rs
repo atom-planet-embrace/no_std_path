@@ -12,7 +12,7 @@ use core::ops::{self, Deref};
 use core::str::FromStr;
 use core::{cmp, fmt};
 
-use crate::os_str::{OsStr, OsString};
+use crate::ffi::{OsStr, OsString};
 use crate::sys_path::{HAS_PREFIXES, MAIN_SEP_STR, is_sep_byte, is_verbatim_sep, parse_prefix};
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1798,7 +1798,7 @@ impl fmt::Debug for Path {
 ///
 /// [`Display`]: fmt::Display
 pub struct Display<'a> {
-    inner: crate::os_str::Display<'a>,
+    inner: crate::ffi::Display<'a>,
 }
 
 impl fmt::Debug for Display<'_> {

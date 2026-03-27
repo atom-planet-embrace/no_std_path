@@ -1,5 +1,5 @@
 use no_std_path::*;
-use no_std_path::os_str::OsStr;
+use no_std_path::ffi::OsStr;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::rc::Rc;
 use std::sync::Arc;

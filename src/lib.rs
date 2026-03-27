@@ -31,7 +31,7 @@
 pub use std::ffi::{OsStr, OsString};
 
 #[cfg(feature = "std")]
-pub mod os_str {
+pub mod ffi {
     //! Re-exports of [`std::ffi::OsStr`] and [`std::ffi::OsString`].
     pub use std::ffi::{OsStr, OsString};
 }
@@ -48,7 +48,7 @@ pub use std::path::{
 extern crate alloc;
 
 #[cfg(not(feature = "std"))]
-pub mod os_str;
+pub mod ffi;
 
 #[cfg(not(feature = "std"))]
 mod sys_path;
@@ -57,7 +57,7 @@ mod sys_path;
 mod path;
 
 #[cfg(not(feature = "std"))]
-pub use crate::os_str::{OsStr, OsString};
+pub use crate::ffi::{OsStr, OsString};
 
 #[cfg(not(feature = "std"))]
 pub use crate::path::{

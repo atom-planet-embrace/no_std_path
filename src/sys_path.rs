@@ -1,4 +1,4 @@
-use crate::os_str::OsStr;
+use crate::ffi::OsStr;
 use crate::Prefix;
 
 #[inline]
